@@ -147,7 +147,7 @@ public class CryptosystemRSA {
             System.out.println("Ошибка при открытии файла " + inputDataFile);
             return;
         }
-        System.out.println("Данные успешно зашифрованы в " + encryptedDataFile);
+        System.out.println("\nДанные успешно зашифрованы в " + encryptedDataFile);
     }
 
 
@@ -207,7 +207,7 @@ public class CryptosystemRSA {
             System.out.println("Ошибка при открытии файла " + encryptedDataFile);
             return;
         }
-        System.out.println("Данные успешно расшифрованы в " + decryptedDataFile);
+        System.out.println("\nДанные успешно расшифрованы в " + decryptedDataFile);
     }
 
 

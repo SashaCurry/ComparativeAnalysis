@@ -226,14 +226,4 @@ public class Short_Weierstrass_curve extends EllipticCurve {
     public String toString() {
         return "Short_Weierstrass_curve(Discriminant=" + this.getDiscriminant() + ", p=" + this.getP() + ", invariant=" + this.getInvariant() + ")";
     }
-
-    public static void main(String[] args) throws Exception {
-        Finite_field field = new Finite_field(new BigInteger("131"), 1);
-        EllipticCurve curve = new Short_Weierstrass_curve(field, new BigInteger("0"), new BigInteger("7"));
-
-        Point P1 = new Point(curve, new BigInteger("80"), new BigInteger("37"));
-        Point P2 = new Point(curve, new BigInteger("69"), new BigInteger("19"));
-
-        System.out.println(curve.addPoints(P1, P2)); // Должна быть точка (69, 19)
-    }
 }

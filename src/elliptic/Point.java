@@ -1,8 +1,7 @@
 package elliptic;
 
 import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Objects;
 
 public class Point {
     private BigInteger x;
@@ -53,36 +52,17 @@ public class Point {
             return false;
 
         Point that = (Point) o;
+
         Object thisX = this.getX();
         Object thatX = that.getX();
-        if (!thisX.equals(thatX))
-            return false;
 
         Object thisY = this.getY();
         Object thatY = that.getY();
-        if (!thisY.equals(thatY))
-            return false;
 
         Object thisCurve = this.getCurve();
         Object thatCurve = that.getCurve();
-//        label55:
-//        {
-//            Object this$curve = this.getCurve();
-//            Object that$curve = that.getCurve();
-//            if (this$curve == null) {
-//                if (that$curve == null) {
-//                    break label55;
-//                }
-//            } else if (this$curve.equals(that$curve)) {
-//                break label55;
-//            }
-//
-//            return false;
-//        }
-        if (thisCurve == null && thatCurve == null || thisCurve.equals(thatCurve))
-            return false;
-        else
-            return true;
+
+        return Objects.equals(thisX, thatX) && Objects.equals(thisY, thatY) && Objects.equals(thisCurve, thatCurve);
     }
 
     public int hashCode() {
