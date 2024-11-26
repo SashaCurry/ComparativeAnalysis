@@ -10,22 +10,22 @@ import java.security.SecureRandom;
 import java.util.*;
 
 public class CryptosystemEdwards {
-    protected Finite_field field;
+    protected FiniteField field;
     protected EllipticCurve curve;
     protected Point G;
     protected BigInteger n;
 
     public CryptosystemEdwards() throws Exception {
-        this.field = new Finite_field(new BigInteger("57896044618658097711785492504343953926634992332820282019728792003956564819949"), 1);
-        this.curve = new Twisted_Edwards_curve(this.field, new BigInteger("-1"), new BigInteger("37095705934669439343138083508754565189542113879843219016388785533085940283555"));
+        this.field = new FiniteField(new BigInteger("57896044618658097711785492504343953926634992332820282019728792003956564819949"));
+        this.curve = new EdwardsCurve(this.field, new BigInteger("-1"), new BigInteger("37095705934669439343138083508754565189542113879843219016388785533085940283555"));
         this.G = new Point(curve, new BigInteger("15112221349535400772501151409588531511454012693041857206046113283949847762202"),
                                   new BigInteger("46316835694926478169428394003475163141307993866256225615783033603165251855960"));
         this.n = new BigInteger("7237005577332262213973186563042994240857116359379907606001950938285454250989");
     }
 
     public CryptosystemEdwards(BigInteger a, BigInteger d, BigInteger p, BigInteger gX, BigInteger gY, BigInteger n) throws Exception {
-        this.field = new Finite_field(p, 1);
-        this.curve = new Twisted_Edwards_curve(field, a, d);
+        this.field = new FiniteField(p);
+        this.curve = new EdwardsCurve(field, a, d);
         this.G = new Point(curve, gX, gY);
         this.n = n;
     }
@@ -34,7 +34,7 @@ public class CryptosystemEdwards {
     public void generateKeys() {
         try (BufferedWriter writerClosedKey = Files.newBufferedWriter(Path.of("d.txt"));
              BufferedWriter writerOpenKey = Files.newBufferedWriter(Path.of("P.txt"))) {
-            BigInteger d = Primitive_algs.getRandomBigIntegerBetweenRange(new BigInteger("2"), n.subtract(BigInteger.ONE), new SecureRandom());
+            BigInteger d = PrimitiveAlgs.getRandomBigIntegerBetweenRange(new BigInteger("2"), n.subtract(BigInteger.ONE), new SecureRandom());
             writerClosedKey.write(String.valueOf(d));
 
             Point P = curve.scalarMult(G, d);
@@ -80,12 +80,12 @@ public class CryptosystemEdwards {
         BigInteger x = new BigInteger(strCode);
         BigInteger denominator = one.subtract(d.multiply(x.pow(2))).modInverse(p);
         BigInteger yy = one.subtract(a.multiply(x.pow(2))).multiply(denominator).mod(p);
-        for (; !Primitive_algs.legendre(yy, p).equals(one); offset++) {
+        for (; !PrimitiveAlgs.symbolLegendre(yy, p).equals(one); offset++) {
             x = x.add(BigInteger.ONE).mod(p);
             denominator = one.subtract(d.multiply(x.pow(2))).modInverse(p);
             yy = one.subtract(a.multiply(x.pow(2))).multiply(denominator).mod(p);
         }
-        BigInteger y = Primitive_algs.sqrtFromZp(yy, p);
+        BigInteger y = PrimitiveAlgs.sqrtFromZp(yy, p);
 
         Point tempPoint = curve.scalarMult(P, k);
         Point C2 = curve.addPoints(new Point(curve, x, y), tempPoint);
@@ -198,7 +198,7 @@ public class CryptosystemEdwards {
         Scanner in = new Scanner(System.in);
         for (; ; ) {
             System.out.println("\n1 - сгенерировать ключ \n2 - зашифровать данные \n3 - расшифровать данные" +
-                    "\n4 - выход");
+                    "\n4 - назад");
             try {
                 char choice = in.nextLine().charAt(0);
                 long startTime = System.currentTimeMillis();

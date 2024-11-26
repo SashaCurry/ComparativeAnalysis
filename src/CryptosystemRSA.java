@@ -211,34 +211,11 @@ public class CryptosystemRSA {
     }
 
 
-//    public void tableCayley() {
-//        BigInteger n = p.multiply(q);
-//        BigInteger one = BigInteger.ONE;
-//
-//        List<BigInteger> elems = new ArrayList<>();
-//        for (BigInteger el = BigInteger.ONE; !el.equals(n); el = el.add(one))
-//            if (el.gcd(n).equals(one))
-//                elems.add(el);
-//
-//
-//        System.out.print("     ");
-//        for (BigInteger el : elems) {
-//            System.out.format("%5s", el);
-//        }
-//        for (BigInteger el1 : elems) {
-//            System.out.format("\n%5s", el1);
-//            for (BigInteger el2 : elems) {
-//                System.out.format("%5s", el1.multiply(el2).mod(n));
-//            }
-//        }
-//    }
-
-
     public void run() {
         Scanner in = new Scanner(System.in);
         for (; ; ) {
             System.out.println("\n1 - сгенерировать ключ \n2 - зашифровать данные \n3 - расшифровать данные" +
-                               "\n4 - выход");
+                               "\n4 - назад");
             try {
                 char choice = in.nextLine().charAt(0);
                 long startTime = System.currentTimeMillis();

@@ -144,12 +144,4 @@ public class Main {
             }
         }
     }
-//    public static void main(String[] args) throws Exception {
-//        Finite_field field = new Finite_field(new BigInteger("131"), 1);
-//        EllipticCurve curve = new Short_Weierstrass_curve(field, new BigInteger("0"), new BigInteger("7"));
-//
-//        Point P1 = new Point(curve, new BigInteger("121"), new BigInteger("29"));
-//        Point P2 = new Point(curve, new BigInteger("121"), new BigInteger("29"));
-//        System.out.println(curve.scalarMultPoint(P1, new BigInteger("16")));
-//    }
 }

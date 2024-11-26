@@ -6,22 +6,22 @@ import java.security.SecureRandom;
 import java.util.*;
 
 public class CryptosystemWeierstrass {
-    protected Finite_field field;
+    protected FiniteField field;
     protected EllipticCurve curve;
     protected Point G;
     protected BigInteger n;
 
     public CryptosystemWeierstrass() throws Exception {
-        this.field = new Finite_field(new BigInteger("115792089237316195423570985008687907853269984665640564039457584007908834671663"), 1);
-        this.curve = new Short_Weierstrass_curve(field, new BigInteger("0"), new BigInteger("7"));
+        this.field = new FiniteField(new BigInteger("115792089237316195423570985008687907853269984665640564039457584007908834671663"));
+        this.curve = new WeierstrassCurve(field, new BigInteger("0"), new BigInteger("7"));
         this.G = new Point(curve, new BigInteger("55066263022277343669578718895168534326250603453777594175500187360389116729240"),
                                   new BigInteger("32670510020758816978083085130507043184471273380659243275938904335757337482424"));
         this.n = new BigInteger("115792089237316195423570985008687907852837564279074904382605163141518161494337");
     }
 
     public CryptosystemWeierstrass(BigInteger a, BigInteger b, BigInteger p, BigInteger gX, BigInteger gY, BigInteger n) throws Exception {
-        this.field = new Finite_field(p, 1);
-        this.curve = new Short_Weierstrass_curve(field, a, b);
+        this.field = new FiniteField(p);
+        this.curve = new WeierstrassCurve(field, a, b);
         this.G = new Point(curve, gX, gY);
         this.n = n;
     }
@@ -30,7 +30,7 @@ public class CryptosystemWeierstrass {
     public void generateKeys() {
         try (BufferedWriter writerClosedKey = Files.newBufferedWriter(Path.of("d.txt"));
              BufferedWriter writerOpenKey = Files.newBufferedWriter(Path.of("P.txt"))) {
-            BigInteger d = Primitive_algs.getRandomBigIntegerBetweenRange(new BigInteger("2"), n.subtract(BigInteger.ONE), new SecureRandom());
+            BigInteger d = PrimitiveAlgs.getRandomBigIntegerBetweenRange(new BigInteger("2"), n.subtract(BigInteger.ONE), new SecureRandom());
             writerClosedKey.write(String.valueOf(d));
 
             Point P = curve.scalarMult(G, d);
@@ -75,11 +75,11 @@ public class CryptosystemWeierstrass {
         int offset = 0;
         BigInteger x = new BigInteger(strCode);
         BigInteger yy = x.pow(3).add(a.multiply(x)).add(b).mod(p);
-        for (; !Primitive_algs.legendre(yy, p).equals(one); offset++) {
+        for (; !PrimitiveAlgs.symbolLegendre(yy, p).equals(one); offset++) {
             x = x.add(one).mod(p);
             yy = x.pow(3).add(a.multiply(x)).add(b).mod(p);
         }
-        BigInteger y = Primitive_algs.sqrtFromZp(yy, p);
+        BigInteger y = PrimitiveAlgs.sqrtFromZp(yy, p);
 
         Point C2 = curve.addPoints(new Point(curve, x, y), curve.scalarMult(P, k));
         return new BigInteger[] {C1.getX(), C1.getY(), C2.getX(), C2.getY(), BigInteger.valueOf(offset)};
