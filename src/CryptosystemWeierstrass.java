@@ -81,7 +81,7 @@ public class CryptosystemWeierstrass {
         }
         BigInteger y = PrimitiveAlgs.sqrtFromZp(yy, p);
 
-        Point C2 = curve.addPoints(new Point(curve, x, y), curve.scalarMult(P, k));
+        Point C2 = curve.addPoints(new Point(curve, x, y), curve.scalarMult(P, k), "affine");
         return new BigInteger[] {C1.getX(), C1.getY(), C2.getX(), C2.getY(), BigInteger.valueOf(offset)};
     }
 
@@ -169,7 +169,7 @@ public class CryptosystemWeierstrass {
                 Point C2 = new Point(curve, new BigInteger(points[2]), new BigInteger(points[3]));
 
                 Point S = curve.scalarMult(C1, d);
-                BigInteger M = curve.addPoints(C2, new Point(curve, S.getX(), S.getY().negate())).getX();
+                BigInteger M = curve.addPoints(C2, new Point(curve, S.getX(), S.getY().negate()), "affine").getX();
 
                 M = M.subtract(new BigInteger(points[4])).mod(field.getCharacteristic());
                 String strCode = String.valueOf(M);

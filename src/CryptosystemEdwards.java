@@ -37,7 +37,7 @@ public class CryptosystemEdwards {
             BigInteger d = PrimitiveAlgs.getRandomBigIntegerBetweenRange(new BigInteger("2"), n.subtract(BigInteger.ONE), new SecureRandom());
             writerClosedKey.write(String.valueOf(d));
 
-            Point P = curve.scalarMult(G, d);
+            Point P = curve.scalarMult(G.toProjective(), d);
             writerOpenKey.write(P.toString());
 
             System.out.println("\nЗакрытый ключ записан в файл \"d.txt\" \nОткрытый ключ записан в \"P.txt\"");
@@ -71,13 +71,15 @@ public class CryptosystemEdwards {
 
     protected BigInteger[] encryptedPoints(Point P, String strCode) {
         BigInteger k = BigInteger.valueOf(new Random().nextLong() + 1).mod(n);
-        Point C1 = curve.scalarMult(G, k);
+        Point C1 = curve.scalarMult(G.toProjective(), k);
 
         BigInteger a = curve.getCoefficients().get(0), d = curve.getCoefficients().get(1);
         BigInteger one = BigInteger.ONE, p = field.getCharacteristic();
 
         int offset = 0;
         BigInteger x = new BigInteger(strCode);
+        BigInteger sqrX = x.modPow(BigInteger.TWO, p);
+
         BigInteger denominator = one.subtract(d.multiply(x.pow(2))).modInverse(p);
         BigInteger yy = one.subtract(a.multiply(x.pow(2))).multiply(denominator).mod(p);
         for (; !PrimitiveAlgs.symbolLegendre(yy, p).equals(one); offset++) {
@@ -88,8 +90,8 @@ public class CryptosystemEdwards {
         BigInteger y = PrimitiveAlgs.sqrtFromZp(yy, p);
 
         Point tempPoint = curve.scalarMult(P, k);
-        Point C2 = curve.addPoints(new Point(curve, x, y), tempPoint);
-        return new BigInteger[] {C1.getX(), C1.getY(), C2.getX(), C2.getY(), BigInteger.valueOf(offset)};
+        Point C2 = curve.addPoints(new Point(curve, x, y, one), tempPoint, "projective");
+        return new BigInteger[] {C1.getX(), C1.getY(), C1.getZ(), C2.getX(), C2.getY(), C2.getZ(), BigInteger.valueOf(offset)};
     }
 
 
@@ -100,7 +102,7 @@ public class CryptosystemEdwards {
         Point P = null;
         try (BufferedReader reader = Files.newBufferedReader(Path.of(openKeyFile))) {
             String[] str = reader.readLine().trim().split(" ");
-            P = new Point(curve, new BigInteger(str[0]), new BigInteger(str[1]));
+            P = new Point(curve, new BigInteger(str[0]), new BigInteger(str[1]), new BigInteger(str[2]));
         } catch (IOException ignored) {
             System.out.println("Ошибка при открытии файла " + openKeyFile);
             return;
@@ -108,6 +110,7 @@ public class CryptosystemEdwards {
 
         StringBuilder strCode = new StringBuilder();
         int sizeP = String.valueOf(this.field.getCharacteristic()).length();
+
         try (BufferedReader reader = Files.newBufferedReader(Path.of(inputDataFile));
              BufferedWriter writer = Files.newBufferedWriter(Path.of(encryptedDataFile))) {
             while (reader.ready()) {
@@ -115,14 +118,15 @@ public class CryptosystemEdwards {
 
                 if (strCode.length() + 4 >= sizeP) {
                     BigInteger[] points = encryptedPoints(P, String.valueOf(strCode));
-                    writer.write(points[0] + " " + points[1] + " " + points[2] +
-                            " " + points[3] + " " + points[4] + "\n");
+                    writer.write(points[0] + " " + points[1] + " " + points[2] + " " + points[3] + " " +
+                                 points[4] + " " + points[5] + " " + points[6] + "\n");
                     strCode = new StringBuilder();
                 }
             }
             if (!strCode.isEmpty()) {
                 BigInteger[] points = encryptedPoints(P, String.valueOf(strCode));
-                writer.write(points[0] + " " + points[1] + " " + points[2] + " " + points[3] + " " + points[4] + "\n");
+                writer.write(points[0] + " " + points[1] + " " + points[2] + " " + points[3] + " " +
+                             points[4] + " " + points[5] + " " + points[6] + "\n");
             }
         } catch (IOException ignored) {
             System.out.println("Ошибка при открытии файла " + inputDataFile);
@@ -172,13 +176,13 @@ public class CryptosystemEdwards {
              BufferedWriter writer = Files.newBufferedWriter(Path.of(decryptedDataFile))) {
             while (reader.ready()) {
                 String[] points = reader.readLine().trim().split(" ");
-                Point C1 = new Point(curve, new BigInteger(points[0]), new BigInteger(points[1]));
-                Point C2 = new Point(curve, new BigInteger(points[2]), new BigInteger(points[3]));
+                Point C1 = new Point(curve, new BigInteger(points[0]), new BigInteger(points[1]), new BigInteger(points[2]));
+                Point C2 = new Point(curve, new BigInteger(points[3]), new BigInteger(points[4]), new BigInteger(points[5]));
 
-                Point S = curve.scalarMult(C1, d);                             //S = d * C1
-                BigInteger M = curve.addPoints(C2, curve.getNegato(S)).getX(); //M = C2 - S
+                Point S = curve.scalarMult(C1, d);                                                      //S = d * C1
+                BigInteger M = curve.addPoints(C2, curve.getNegato(S), "projective").toAffine().getX(); //M = C2 - S
 
-                M = M.subtract(new BigInteger(points[4])).mod(field.getCharacteristic());
+                M = M.subtract(new BigInteger(points[6])).mod(field.getCharacteristic());
                 String strCode = String.valueOf(M);
                 while (strCode.length() % 4 != 0)
                     strCode = "0" + strCode;

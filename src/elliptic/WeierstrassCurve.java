@@ -19,11 +19,11 @@ public class WeierstrassCurve extends EllipticCurve {
     }
 
 
-    public Point addPoints(Point P, Point Q) {
+    public Point addPoints(Point P, Point Q, String type) {
         if (P.equals(Q))
-            return this.doublePoint(P);
+            return this.doublePoint(P, type);
         else if (P.equals(this.getNegato(Q)))
-            return new Point(this);
+            return new Point(this, type);
         else if (P.equals(new Point(this)))
             return Q;
         else if (Q.equals(new Point(this)))
@@ -41,7 +41,7 @@ public class WeierstrassCurve extends EllipticCurve {
     }
 
 
-    public Point doublePoint(Point P) {
+    public Point doublePoint(Point P, String type) {
         if (P.equals(new Point(this)))
             return P;
         else if (P.getY().equals(BigInteger.ZERO))

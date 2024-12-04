@@ -7,26 +7,28 @@ public abstract class EllipticCurve {
     protected ArrayList<BigInteger> Coefficients;
     protected FiniteField Field;
 
-    public abstract Point addPoints(Point P, Point Q);
+    public abstract Point addPoints(Point P, Point Q, String type);
 
-    public abstract Point doublePoint(Point P);
+    public abstract Point doublePoint(Point P, String type);
 
 
     public Point scalarMult(Point P, BigInteger scalar) {
+        String type = P.getType();
+
         if (scalar.equals(BigInteger.ZERO))
-            return new Point(this);
+            return new Point(this, type);
         else if (scalar.equals(BigInteger.ONE))
             return P;
         else if (scalar.equals(BigInteger.TWO))
-            return this.doublePoint(P);
+            return this.doublePoint(P, type);
 
         StringBuilder kBin = new StringBuilder(scalar.toString(2)).reverse();
-        Point res = new Point(this);
+        Point res = new Point(this, type);
 
         for (int i = 0; i < kBin.length(); ++i) {
             if (kBin.charAt(i) == '1')
-                res = this.addPoints(res, P);
-            P = this.doublePoint(P);
+                res = this.addPoints(res, P, type);
+            P = this.doublePoint(P, type);
         }
 
         return res;
