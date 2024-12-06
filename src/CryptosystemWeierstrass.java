@@ -33,8 +33,8 @@ public class CryptosystemWeierstrass {
             BigInteger d = PrimitiveAlgs.getRandomBigIntegerBetweenRange(new BigInteger("2"), n.subtract(BigInteger.ONE), new SecureRandom());
             writerClosedKey.write(String.valueOf(d));
 
-            Point P = curve.scalarMult(G, d);
-            writerOpenKey.write(P.toString());
+            Point P = curve.scalarMult(G.toProjective(), d);
+            writerOpenKey.write(P.toAffine().toString());
 
             System.out.println("\nЗакрытый ключ записан в файл \"d.txt\" \nОткрытый ключ записан в \"P.txt\"");
         } catch (IOException ignored) {
@@ -67,7 +67,7 @@ public class CryptosystemWeierstrass {
 
     protected BigInteger[] encryptedPoints(Point P, String strCode) {
         BigInteger k = BigInteger.valueOf(new Random().nextLong() + 1).mod(n);
-        Point C1 = curve.scalarMult(G, k);
+        Point C1 = curve.scalarMult(G.toProjective(), k);
 
         BigInteger a = curve.getCoefficients().get(0), b = curve.getCoefficients().get(1);
         BigInteger one = BigInteger.ONE, p = field.getCharacteristic();
@@ -81,7 +81,11 @@ public class CryptosystemWeierstrass {
         }
         BigInteger y = PrimitiveAlgs.sqrtFromZp(yy, p);
 
-        Point C2 = curve.addPoints(new Point(curve, x, y), curve.scalarMult(P, k), "affine");
+        Point tempPoint = curve.scalarMult(P.toProjective(), k);
+        Point C2 = curve.addPoints(new Point(curve, x, y, one), tempPoint, "Projective");
+
+        C1 = C1.toAffine();
+        C2 = C2.toAffine();
         return new BigInteger[] {C1.getX(), C1.getY(), C2.getX(), C2.getY(), BigInteger.valueOf(offset)};
     }
 
@@ -152,7 +156,7 @@ public class CryptosystemWeierstrass {
         String[] files = getFilesForDecryption();
         String closedKeyFile = files[0], encryptedDataFile = files[1], decryptedDataFile = files[2];
 
-        BigInteger d;
+         BigInteger d;
         try (BufferedReader reader = Files.newBufferedReader(Path.of(closedKeyFile))) {
             String str = reader.readLine().trim();
             d = new BigInteger(str);
@@ -165,11 +169,12 @@ public class CryptosystemWeierstrass {
              BufferedWriter writer = Files.newBufferedWriter(Path.of(decryptedDataFile))) {
             while (reader.ready()) {
                 String[] points = reader.readLine().trim().split(" ");
-                Point C1 = new Point(curve, new BigInteger(points[0]), new BigInteger(points[1]));
+                Point C1 = new Point(curve, new BigInteger(points[0]), new BigInteger(points[1]), BigInteger.ONE);
                 Point C2 = new Point(curve, new BigInteger(points[2]), new BigInteger(points[3]));
 
                 Point S = curve.scalarMult(C1, d);
-                BigInteger M = curve.addPoints(C2, new Point(curve, S.getX(), S.getY().negate()), "affine").getX();
+                Point SAff = S.toAffine();
+                BigInteger M = curve.addPoints(C2, curve.getNegato(S).toAffine(), "Affine").getX();
 
                 M = M.subtract(new BigInteger(points[4])).mod(field.getCharacteristic());
                 String strCode = String.valueOf(M);

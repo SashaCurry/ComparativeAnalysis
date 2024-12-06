@@ -39,7 +39,7 @@ public class EdwardsCurve extends EllipticCurve {
 
         Point res = new Point(this);
 
-        if (type.equals("affine")) {
+        if (type.equals("Affine")) {
             BigInteger x1y2 = x1.multiply(y2).mod(this.p);
             BigInteger x2y1 = x2.multiply(y1).mod(this.p);
             BigInteger y1y2 = y1.multiply(y2).mod(this.p);
@@ -53,9 +53,9 @@ public class EdwardsCurve extends EllipticCurve {
 
             res.setX(xR);
             res.setY(yR);
-            res.setType("affine");
+            res.setType("Affine");
         }
-        else if (type.equals("projective")) {
+        else if (type.equals("Projective")) {
             BigInteger z1z2 = z1.multiply(z2).mod(this.p);
             BigInteger sqr_z1z2 = z1z2.modPow(BigInteger.TWO, this.p);
             BigInteger x1x2 = x1.multiply(x2).mod(this.p);
@@ -72,7 +72,7 @@ public class EdwardsCurve extends EllipticCurve {
             res.setX(xR);
             res.setY(yR);
             res.setZ(zR);
-            res.setType("projective");
+            res.setType("Projective");
         }
 
         return res;
@@ -93,7 +93,7 @@ public class EdwardsCurve extends EllipticCurve {
 
         Point res = new Point(this);
 
-        if (type.equals("affine")) {
+        if (type.equals("Affine")) {
             BigInteger denominator = one.subtract(d.modPow(two, this.p).multiply(sqrMultXY.modPow(two, this.p))).modInverse(this.p);
 
             BigInteger xR = two.multiply(multXY).multiply(one.subtract(d.multiply(sqrMultXY))).multiply(denominator).mod(this.p);
@@ -101,9 +101,9 @@ public class EdwardsCurve extends EllipticCurve {
 
             res.setX(xR);
             res.setY(yR);
-            res.setType("affine");
+            res.setType("Affine");
         }
-        else if (type.equals("projective")) {
+        else if (type.equals("Projective")) {
             BigInteger sqr_XaddY = P.getX().add(P.getY()).modPow(BigInteger.TWO, this.p);
             BigInteger axx = a.multiply(sqrX).mod(this.p);
             BigInteger axxyy = axx.add(sqrY).mod(this.p);
@@ -118,7 +118,7 @@ public class EdwardsCurve extends EllipticCurve {
             res.setX(xR);
             res.setY(yR);
             res.setZ(zR);
-            res.setType("projective");
+            res.setType("Projective");
         }
 
         return res;
@@ -126,7 +126,7 @@ public class EdwardsCurve extends EllipticCurve {
 
 
     public Point getNegato(Point P) {
-        if (P.getType().equals("affine"))
+        if (P.getType().equals("Affine"))
             return new Point(this, P.getX().negate().mod(this.p), P.getY());
         else
             return new Point(this, P.getX().negate().mod(this.p), P.getY(), P.getZ());

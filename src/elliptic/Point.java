@@ -15,7 +15,7 @@ public class Point {
         this.x = x;
         this.y = y;
         this.z = BigInteger.ZERO;
-        this.type = "affine";
+        this.type = "Affine";
     }
 
     public Point(EllipticCurve curve) {
@@ -23,7 +23,7 @@ public class Point {
         this.x = BigInteger.ZERO;
         this.y = BigInteger.ONE;
         this.z = BigInteger.ZERO;
-        this.type = "affine";
+        this.type = "Affine";
     }
 
     public Point(EllipticCurve curve, String type) {
@@ -39,7 +39,7 @@ public class Point {
         this.x = x;
         this.y = y;
         this.z = z;
-        this.type = "projective";
+        this.type = "Projective";
     }
 
     public Point toAffine() {
@@ -117,11 +117,8 @@ public class Point {
         Object thisCurve = this.getCurve();
         Object thatCurve = that.getCurve();
 
-        Object thisType = this.getType();
-        Object thatType = that.getType();
-
         return Objects.equals(thisX, thatX) && Objects.equals(thisY, thatY) && Objects.equals(thisZ, thatZ) &&
-                Objects.equals(thisCurve, thatCurve) && Objects.equals(thisType, thatType);
+                Objects.equals(thisCurve, thatCurve);
     }
 
     public int hashCode() {
@@ -141,7 +138,7 @@ public class Point {
     }
 
     public String toString() {
-        if (type.equals("affine"))
+        if (type.equals("Affine"))
             return this.getX() + " " + this.getY();
         else
             return this.getX() + " " + this.getY() + " " + this.getZ();
