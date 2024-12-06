@@ -15,7 +15,7 @@ public class Point {
         this.x = x;
         this.y = y;
         this.z = BigInteger.ZERO;
-        this.type = "affine";
+        this.type = "a";
     }
 
     public Point(EllipticCurve curve) {
@@ -23,7 +23,7 @@ public class Point {
         this.x = BigInteger.ZERO;
         this.y = BigInteger.ONE;
         this.z = BigInteger.ZERO;
-        this.type = "affine";
+        this.type = "a";
     }
 
     public Point(EllipticCurve curve, String type) {
@@ -39,10 +39,10 @@ public class Point {
         this.x = x;
         this.y = y;
         this.z = z;
-        this.type = "projective";
+        this.type = "p";
     }
 
-    public Point toAffine() {
+    public Point toA() {
         BigInteger p = curve.getField().getCharacteristic();
         BigInteger xAff = this.x.multiply(z.modInverse(p)).mod(p);
         BigInteger yAff = this.y.multiply(z.modInverse(p)).mod(p);
@@ -50,7 +50,7 @@ public class Point {
         return new Point(this.getCurve(), xAff, yAff);
     }
 
-    public Point toProjective() {
+    public Point toP() {
         this.z = BigInteger.ONE;
 
         return new Point(this.getCurve(), this.x, this.y, this.z);
@@ -141,7 +141,7 @@ public class Point {
     }
 
     public String toString() {
-        if (type.equals("affine"))
+        if (type.equals("a"))
             return this.getX() + " " + this.getY();
         else
             return this.getX() + " " + this.getY() + " " + this.getZ();
